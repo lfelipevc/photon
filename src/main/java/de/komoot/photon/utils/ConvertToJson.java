@@ -28,10 +28,10 @@ public class ConvertToJson implements OneWayConverter<SearchResponse, List<JSONO
 
     @Override
     public List<JSONObject> convert(SearchResponse searchResponse) {
-        SearchHit[] hits = searchResponse.getHits().hits();
+        SearchHit[] hits = searchResponse.getHits().getHits();
         final List<JSONObject> list = Lists.newArrayListWithExpectedSize(hits.length);
         for (SearchHit hit : hits) {
-            final Map<String, Object> source = hit.getSource();
+            final Map<String, Object> source = hit.getSourceAsMap();
 
             final JSONObject feature = new JSONObject();
             feature.put(Constants.TYPE, Constants.FEATURE);

@@ -7,6 +7,8 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
@@ -35,8 +37,10 @@ public class Importer implements de.komoot.photon.Importer {
     @Override
     public void add(PhotonDoc doc) {
         try {
+            XContentBuilder builder = Utils.convert(doc, languages);
+
             this.bulkRequest.add(this.esClient.prepareIndex(indexName, indexType).
-                    setSource(Utils.convert(doc, languages)).setId(doc.getUid()));
+                    setSource(builder).setId(doc.getUid()));
         } catch (IOException e) {
             log.error("could not bulk add document " + doc.getUid(), e);
             return;
@@ -65,6 +69,6 @@ public class Importer implements de.komoot.photon.Importer {
 
     public long count() {
         return this.esClient.search(Requests.searchRequest(indexName).types(indexType).source(SearchSourceBuilder.searchSource().size(0))).actionGet().getHits()
-                .getTotalHits();
+                .getTotalHits().value;
     }
 }

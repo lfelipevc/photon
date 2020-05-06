@@ -17,6 +17,10 @@
                     <groupId>org.elasticsearch</groupId>
                     <artifactId>jna</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency><!-- required by elasticsearch -->
@@ -38,7 +42,7 @@
             see https://github.com/elastic/elasticsearch/issues/13245 -->
             <groupId>org.elasticsearch</groupId>
             <artifactId>jna</artifactId>
-            <version>4.4.0</version>
+            <version>4.5.1</version>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>
@@ -229,7 +233,7 @@
                         <artifactItem>
                             <groupId>org.codelibs.elasticsearch.module</groupId>
                             <artifactId>lang-painless</artifactId>
-                            <version>5.5.0</version>
+                            <version>7.6.2</version>
                             <type>jar</type>
                             <overWrite>false</overWrite>
                             <outputDirectory>${project.build.directory}/es/modules/lang-painless</outputDirectory>
@@ -314,9 +318,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
 
-        <elasticsearch.version>5.5.0</elasticsearch.version>
-        <slf4j.version>1.7.25</slf4j.version>
-        <log4j.version>2.8.2</log4j.version>
+        <!-- <elasticsearch.version>5.5.0</elasticsearch.version> -->
+        <elasticsearch.version>7.6.2</elasticsearch.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <log4j.version>2.13.2</log4j.version>
 
         <additionalparam>-Xdoclint:none</additionalparam>
     </properties>
