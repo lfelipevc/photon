@@ -43,8 +43,8 @@ public class TagFilterQueryBuilderTest {
     }
 
     private JsonNode readJson(ToXContent queryBuilder) throws IOException {
-        return this.readJson(
-                queryBuilder.toXContent(JsonXContent.contentBuilder(), new ToXContent.MapParams(null)).bytes());
+        return this.readJson(BytesReference.bytes(
+                queryBuilder.toXContent(JsonXContent.contentBuilder(), new ToXContent.MapParams(null))));
     }
 
     private JsonNode readJson(BytesReference jsonStringBytes) throws IOException {

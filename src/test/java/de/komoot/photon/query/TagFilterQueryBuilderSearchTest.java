@@ -6,6 +6,8 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.util.Set;
 
+import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
@@ -34,7 +36,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withTags(ImmutableMap.of("tourism", valueSet));
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(2l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(2,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -48,7 +50,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withValues("attraction");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(2l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(2,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -62,7 +64,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withKeys("tourism");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(8l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(8,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -77,7 +79,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withoutTags(ImmutableMap.of("tourism", valueSet));
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(16l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(16,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -91,7 +93,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withoutValues("information");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(12l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(12,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -105,7 +107,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withoutKeys("tourism");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(10l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(10,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -122,7 +124,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withKeys("tourism").withoutValues("information");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(6l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(6,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -140,7 +142,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withTagsNotValues(ImmutableMap.of("tourism", valueSet));
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(6l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(6,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -154,7 +156,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withoutKeys("tourism", "amenity");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(4l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(4,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -170,7 +172,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withKeys("tourism").withoutKeys("amenity");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(8l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(8,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -184,7 +186,7 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withValues("information").withoutKeys("amenity");
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(4l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(4,Relation.EQUAL_TO)));
 
         deleteIndex();
     }
@@ -199,12 +201,12 @@ public class TagFilterQueryBuilderSearchTest extends ESBaseTester {
         TagFilterQueryBuilder tagFilterQueryBuilder = PhotonQueryBuilder.builder("berlin", "en").withoutTags(ImmutableMap.of("tourism", attraction));
         QueryBuilder queryBuilder = tagFilterQueryBuilder.buildQuery();
         SearchResponse searchResponse = search(client, queryBuilder);
-        assertThat(searchResponse.getHits().getTotalHits(), is(16l));
+        assertThat(searchResponse.getHits().getTotalHits(), is(new TotalHits(16, Relation.EQUAL_TO)));
 
         deleteIndex();
     }
 
     private SearchResponse search(Client client, QueryBuilder queryBuilder) {
-        return client.prepareSearch("photon").setSearchType(SearchType.QUERY_AND_FETCH).setQuery(queryBuilder).execute().actionGet();
+        return client.prepareSearch("photon").setSearchType(SearchType.QUERY_THEN_FETCH).setQuery(queryBuilder).execute().actionGet();
     }
 }

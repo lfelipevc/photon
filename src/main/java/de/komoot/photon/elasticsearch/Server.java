@@ -1,9 +1,19 @@
 package de.komoot.photon.elasticsearch;
 
-import de.komoot.photon.CommandLineArgs;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -14,21 +24,15 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.node.InternalSettingsPreparer;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeValidationException;
+import org.elasticsearch.painless.PainlessPlugin;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
+import de.komoot.photon.CommandLineArgs;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Helper class to start/stop elasticsearch node and get elasticsearch clients
@@ -52,10 +56,17 @@ public class Server {
     private Integer shards = null;
 
     protected static class MyNode extends Node {
-        public MyNode(Environment environment) {
-            super(environment);
+        public MyNode(Environment environment,Collection<Class<? extends Plugin>> classpathPlugins) {
+            super(environment,classpathPlugins, true);
         }
     }
+    
+    private static class PluginConfigurableNode extends Node {
+        public PluginConfigurableNode(Settings settings,Collection<Class<? extends Plugin>>  classpathPlugins) {
+            super(InternalSettingsPreparer.prepareEnvironment(settings, new HashMap<String,String>(),null,null), classpathPlugins,true);
+        }
+    }
+
 
     public Server(CommandLineArgs args) {
         this(args.getCluster(), args.getDataDirectory(), args.getLanguages(), args.getTransportAddresses());
@@ -81,6 +92,7 @@ public class Server {
         sBuilder.put("path.home", this.esDirectory.toString());
         sBuilder.put("network.host", "127.0.0.1"); // http://stackoverflow.com/a/15509589/1245622
         sBuilder.put("cluster.name", clusterName);
+        sBuilder.put("node.name", clusterName);
 
         if (transportAddresses != null && !transportAddresses.isEmpty()) {
             TransportClient trClient = new PreBuiltTransportClient(sBuilder.build());
@@ -103,16 +115,11 @@ public class Server {
         } else {
 
             try {
-                sBuilder.put("transport.type", "netty4").put("http.type", "netty4").put("http.enabled", "true");
+                sBuilder.put("transport.type", "netty4").put("http.type", "netty4");
+                
                 Settings settings = sBuilder.build();
-                /*
-                Collection<Class<? extends Plugin>> lList = new LinkedList<>();
-                lList.add(Netty4Plugin.class);
-                */
-
-                Environment environment = new Environment(settings, null);
-                esNode = new Node(environment);
-                //esNode = new MyNode(settings, lList);
+                Collection plugins = Arrays.asList(Netty4Plugin.class,CommonAnalysisPlugin.class,PainlessPlugin.class);
+                esNode = new PluginConfigurableNode(settings,plugins);
                 esNode.start();
 
                 log.info("started elastic search node");
@@ -155,27 +162,11 @@ public class Server {
         final File pluginDirectory = new File(esDirectory, "plugins");
         final File scriptsDirectory = new File(esDirectory, "config/scripts");
         final File painlessDirectory = new File(esDirectory, "modules/lang-painless");
+        final File modulesDirectory = new File(esDirectory,"modules");
 
-        for (File directory : new File[]{photonDirectory, esDirectory, pluginDirectory, scriptsDirectory,
-                painlessDirectory}) {
+        for (File directory : new File[]{photonDirectory, esDirectory, pluginDirectory, scriptsDirectory,modulesDirectory}) {
             directory.mkdirs();
         }
-
-        // copy script directory to elastic search directory
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
-        Files.copy(loader.getResourceAsStream("modules/lang-painless/antlr4-runtime.jar"),
-                new File(painlessDirectory, "antlr4-runtime.jar").toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(loader.getResourceAsStream("modules/lang-painless/asm-debug-all.jar"),
-                new File(painlessDirectory, "asm-debug-all.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(loader.getResourceAsStream("modules/lang-painless/lang-painless.jar"),
-                new File(painlessDirectory, "lang-painless.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(loader.getResourceAsStream("modules/lang-painless/plugin-descriptor.properties"),
-                new File(painlessDirectory, "plugin-descriptor.properties").toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(loader.getResourceAsStream("modules/lang-painless/plugin-security.policy"),
-                new File(painlessDirectory, "plugin-security.policy").toPath(), StandardCopyOption.REPLACE_EXISTING);
 
     }
 

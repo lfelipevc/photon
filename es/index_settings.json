@@ -6,7 +6,7 @@
 					"punctuationgreedy",
 					"remove_ws_hnr_suffix"
 				],
-				"tokenizer": "edge_ngram",
+				"tokenizer": "edge_ngram_tokenizer",
 				"filter": [
 					"preserving_word_delimiter",
 					"lowercase",
@@ -64,7 +64,7 @@
 			}
 		},
 		"tokenizer": {
-			"edge_ngram": {
+			"edge_ngram_tokenizer": {
 				"type": "edge_ngram",
 				"min_gram": 1,
 				"max_gram": 100,
